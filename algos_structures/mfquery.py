@@ -1,4 +1,8 @@
 '''
+This file is about to implement the "generated part"
+'''
+
+'''
 select cust, sum(x.quant), sum(y.quant), sum(z.quant)
     from sales
     group by cust: x, y, z
@@ -14,8 +18,12 @@ select cust, sum(q)
 '''
 
 class mfvar:
-    cust_var : str # x, y, z
+    select_var : list # x, y, z
     sum_quant : list
+    avg_quant : list
+    count_quant : list
+    max_quant : list
+    min_quant : list
 
 class mfquery:
     def __init__(self):
@@ -31,6 +39,8 @@ class mfquery:
                     from sales
                     group by cust;
             store the sums into list. 
+
+            This part is generated code.
         '''
     @staticmethod
     def checkHavingConds(cust_obj : mfvar) -> bool:
