@@ -17,13 +17,15 @@ ParserClass::ParserClass()
 void ParserClass::readInput()
 {
     std::wstring line;
+    std::string nextLine;
     while(getline(std::wcin, line))
     {
         if (line.empty())
             break;
         if (line == ParserClass::SELECT_VAR)
         {
-            this->getSelectVar();
+            std::cin >> nextLine;
+            this->getSelectVar(nextLine);
         }
         else if (line == ParserClass::NUM_OF_GROUPING)
         {
@@ -43,6 +45,15 @@ void ParserClass::readInput()
         {
             this->parseHavingCond();
         }
+    }
+}
+
+void ParserClass::getSelectVar(std::string line)
+{
+    std::vector<std::string> vars = ParserClass::splitStr(line);
+    for (auto var : vars)
+    {
+        
     }
 }
 

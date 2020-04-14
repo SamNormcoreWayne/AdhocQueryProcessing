@@ -32,7 +32,7 @@ public:
     ParserClass& operator= (const ParserClass &) = delete;
 
     // class attributes operators;
-    void getSelectVar();
+    void getSelectVar(std::string line);
     void setNum();
 
     // class methods for specific functions;
@@ -44,10 +44,18 @@ public:
      */
     void readInput();
     void parseAggFunc();
-    void parseInput();
+    void parseInputToSQL();
     void parseSelectCond();
     void parseHavingCond();
 
     // Output
     int generateCode();
+    static std::vector<std::string> splitStr(std::string str, std::string pattern = ",")
+    {
+        /**
+         * Split a string by a specific pattern. The default pattern is ','
+         * PARAMS: str : string, pattern : string
+         * RETURN: stringLst : vector<string>
+         */
+    }
 };
