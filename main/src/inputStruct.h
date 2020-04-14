@@ -19,7 +19,9 @@ struct inputStruct
     std::vector<std::string> cond_vars;
 
     // The format of HAVING_CONDITION should be a line of if.
-    std::vector<std::string> having_conds;
+    // TODO: the meaning of this var needs to specifying
+    std::string having_conds;
+    // std::vector<std::string> having_conds;
 
     // NUMBER OF GROUPING VARIABLES
     int num;

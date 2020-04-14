@@ -31,28 +31,26 @@ public:
     ParserClass(const ParserClass &) = delete;
     ParserClass& operator= (const ParserClass &) = delete;
 
-    // class attributes operators;
+    // class methods for attributes operators;
     void getSelectVar(std::string line);
+    void getAggFunc(std::string line);
+    inline void getSelectCond(std::string line);
+    inline void getHavingCond(std::string line);
     void setNum();
 
     // class methods for specific functions;
-    /**
-     * TODO: parseAggFunc() have param: wstring thisLine;
-     * -> parseAggFunc(wstring thieLine);
-     * so as:
-     *  parseInput();
-     */
     void readInput();
-    void parseAggFunc();
     void parseInputToSQL();
-    void parseSelectCond();
-    void parseHavingCond();
+    void parseAggFunc(std::string line);
+    void parseSelectCond(std::string line);
+    void parseHavingCond(std::string line);
 
     // Output
     int generateCode();
     static std::vector<std::string> splitStr(std::string str, std::string pattern = ",")
     {
         /**
+         * TODO:
          * Split a string by a specific pattern. The default pattern is ','
          * PARAMS: str : string, pattern : string
          * RETURN: stringLst : vector<string>
