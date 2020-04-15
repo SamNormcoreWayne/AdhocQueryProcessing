@@ -47,13 +47,30 @@ public:
 
     // Output
     int generateCode();
-    static std::vector<std::string> splitStr(std::string str, std::string pattern = ",")
+    static std::vector<std::string> splitStr(std::string str, char pattern = ',')
     {
         /**
-         * TODO:
+         * TODO: replace std::string.substr() by ParserClass::subStr()
          * Split a string by a specific pattern. The default pattern is ','
          * PARAMS: str : string, pattern : string
          * RETURN: stringLst : vector<string>
          */
+        std::vector<std::string> strLst;
+        int j = 0;
+        for (int i = 0; i < str.size(); ++i)
+        {
+            if (str[i] == pattern)
+            {
+                strLst.push_back(str.substr(j, i - j));
+                //ParserClass::subStr(str, j, i);
+                j = i + 1;
+            }
+        }
+        return strLst;
+    }
+    static char* subStr(std::string str, int start, int end)
+    {
+        char* outStr = new char[end - start + 1];
+        
     }
 };
