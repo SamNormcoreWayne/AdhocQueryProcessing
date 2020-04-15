@@ -17,13 +17,15 @@ ParserClass::ParserClass()
 void ParserClass::readInput()
 {
     std::wstring line;
-    while(getline(std::wcin, line))
+    std::string nextLine;
+    while(std::getline(std::wcin, line))
     {
         if (line.empty())
             break;
         if (line == ParserClass::SELECT_VAR)
         {
-            this->getSelectVar();
+            std::cin >> nextLine;
+            this->getSelectVar(nextLine);
         }
         else if (line == ParserClass::NUM_OF_GROUPING)
         {
@@ -33,17 +35,58 @@ void ParserClass::readInput()
         }
         else if (line == ParserClass::AGG_FUNCS)
         {
-            this->parseAggFunc();
+            std::cin >> nextLine;
+            this->getAggFunc(nextLine);
         }
         else if (line == ParserClass::SELECT_CONDS)
         {
-            this->parseSelectCond();
+            for (int i = 0; i < this->inputs.num; ++i)
+            {
+                std::cin >> nextLine;
+                this->getSelectCond(nextLine);
+            }
         }
         else if (line == ParserClass::HAVING_CONDS)
         {
-            this->parseHavingCond();
+            std::getline(std::cin, nextLine);
+            this->getHavingCond(nextLine);
         }
     }
+}
+
+void ParserClass::getSelectVar(std::string line)
+{
+    std::vector<std::string> vars = ParserClass::splitStr(line);
+    this->inputs.select_var = vars;
+}
+
+void ParserClass::getAggFunc(std::string line)
+{
+    std::vector<std::string> funcs = ParserClass::splitStr(line);
+    this->inputs.aggre_funcs = funcs;
+}
+
+inline void ParserClass::getSelectCond(std::string line)
+{
+    this->inputs.cond_vars.emplace_back(line);
+}
+
+inline void ParserClass::getHavingCond(std::string line)
+{
+    this->inputs.having_conds = line;
+}
+
+/**
+ * INPUT: like 'varName.1_sum_quant > 2 * varName.2_sum_quant || varName.1_avg_quant > varName.3_avg_quant'
+ * PARAM: line : string
+ * ATTRIBUTES: this->inputs.having_conds
+ * RETURN: None
+ * DESCRIPTION: basically this is a function parsing if-else.
+ */
+void ParserClass::parseHavingCond(std::string line)
+{
+    // TODO:
+    return;
 }
 
 /**
