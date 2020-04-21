@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <utility>
 #include <map>
 /**
  * SELECT ATTRIBUTES is made of GROUPING ATTRIBUTES and F-VECTs.
