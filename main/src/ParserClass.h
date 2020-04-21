@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "inputStruct.h"
+#include "parsedStruct.h"
 
 /**
  * INPUT:
@@ -16,12 +17,14 @@
 class ParserClass
 {
 private:
-    inputStruct inputs;
+    InputStruct inputs;
+    ParsedStruct parsedInputs;
     std::vector<std::string> query;
 protected:
     enum aggFuncType {SUM, AVG, MAX, MIN, COUNT};
     static const wchar_t* SELECT_VAR;
     static const wchar_t* NUM_OF_GROUPING;
+    static const wchar_t* GROUPING_ATTRIBUTE;
     static const wchar_t* AGG_FUNCS;
     static const wchar_t* SELECT_CONDS;
     static const wchar_t* HAVING_CONDS;
@@ -43,7 +46,6 @@ public:
     void parseInputToSQL();
     void parseAggFunc(std::string line);
     void parseSelectCond(std::string line);
-    void parseHavingCond(std::string line);
 
     // Output
     int generateCode();
