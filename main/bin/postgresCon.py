@@ -1,5 +1,8 @@
 import psycopg2 as pstgre
 
+'''
+    Algorithm 2.1 in the paper.
+'''
 
 class postgresCon():
     def __main__(self, user, pwd, db_name='sales', host='localhost', port='5432'):
@@ -15,12 +18,19 @@ class postgresCon():
     def getSql(self, sqlStr : str):
         self.sqlLst.append(sqlStr)
 
-    def execSql(self):
-        cur = self.conn.cursor()
+    def execSql(self, output=None):
+        self.cur = self.conn.cursor()
         for sql in self.sqlLst:
-            cur.execute(sql)
+            try:
+                self.cur.execute(sql)
+            except(pstgre.DatabaseError) as dberr:
+                print("Error while execute query: \n '{}'\n".format(sql), dberr)
+
+            finally:
+                if output is not None:
+                    output = self.conn.fetchone()
+                    # this is unfinished.
         # TODO: store the output in a proper way
-        cur.close()
 
     def optHaving(self):
         None
