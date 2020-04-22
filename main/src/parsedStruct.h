@@ -2,18 +2,18 @@
 #include <string>
 #include <vector>
 #include <map>
-/**
- * SELECT ATTRIBUTES is made of GROUPING ATTRIBUTES and F-VECTs.
- * selectAggFunc<varName, func> : <string, string>
- * selectAggVar<varName> : [string]
- * aggVar : [string] - this vars would be used in JOIN
- * aggFunc<varName, aggFunc> - this funcs would be used in JOIN
- * having conds.
+/*
+ * SELECT ATTRIBUTES - selectAttr : vector<string>
+ * HAVING CONDITIONS - havingCond : string
+ * GROUPING ATTRIBUTES - partitions: vector<MFStruct>
+ *  gourpAttr : string
+ *  aggFunc<varName, aggFunc> : map<int, string>
+ *  SELECT CONDITION-VECT - selectCondVect<varName, conditions> : map<int, string>
  */
 
 struct MFStruct
 {
-    std::string groupAttri;
+    std::string groupAttr;
     std::map<int, std::string> aggFunc;
     std::map<int, std::string> selectCondVect;
 };
