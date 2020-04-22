@@ -5,6 +5,7 @@
 
 const wchar_t* ParserClass::SELECT_VAR = L"SELECT ATTRIBUTE(S):";
 const wchar_t* ParserClass::NUM_OF_GROUPING = L"NUMBER OF GROUPING VARIABLES(n):";
+const wchar_t* ParserClass::GROUPING_ATTRIBUTE = L"GROUPING ATTRIBUTES(V):";
 const wchar_t* ParserClass::AGG_FUNCS = L"F-VECT([F]):";
 const wchar_t* ParserClass::SELECT_CONDS = L"SELECT CONDITION-VECT([σ]):";
 const wchar_t* ParserClass::HAVING_CONDS = L"HAVING_CONDITION(G)";
@@ -83,12 +84,6 @@ inline void ParserClass::getHavingCond(std::string line)
  * RETURN: None
  * DESCRIPTION: basically this is a function parsing if-else.
  */
-void ParserClass::parseHavingCond(std::string line)
-{
-    // TODO:
-    return;
-}
-
 /**
  * TODO: Implements funcs left;
  */
