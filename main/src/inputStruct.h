@@ -11,7 +11,7 @@
  * HAVING_CONDITION(G)
  */
 
-struct inputStruct
+struct InputStruct
 {
     std::vector<std::string> select_var;
     std::vector<std::string> group_var;
@@ -26,6 +26,6 @@ struct inputStruct
     // NUMBER OF GROUPING VARIABLES
     int num;
 
-    inputStruct() : num(0)
+    InputStruct() : num(0)
     {}
 };
