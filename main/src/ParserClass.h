@@ -27,7 +27,7 @@ protected:
     static const wchar_t* GROUPING_ATTRIBUTE;
     static const wchar_t* AGG_FUNCS;
     static const wchar_t* SELECT_CONDS;
-    static const wchar_t* HAVING_CONDS;
+    static const char* HAVING_CONDS;
 public:
     ParserClass();
     ~ParserClass();
@@ -35,21 +35,24 @@ public:
     ParserClass& operator= (const ParserClass &) = delete;
 
     // class methods for attributes operators;
-    void getSelectVar(std::string line);
-    void getAggFunc(std::string line);
-    inline void getSelectCond(std::string line);
-    inline void getHavingCond(std::string line);
+    void setSelectVar(std::string line);
+    void setAggFunc(std::string line);
+    inline void setSelectCond(std::string line);
+    inline void setHavingCond(std::string line);
     void setNum();
 
     // class methods for specific functions;
     void readInput();
-    void parseInputToSQL();
-    void parseAggFunc(std::string line);
-    void parseSelectCond(std::string line);
+    inline void parseSelectAttr();
+    inline void parseHavingConds();
+    std::map<int, std::string>&& parseAggFunc();
+    std::map<int, std::string>&& parseSelectCond();
+    void parseMFStruct();
 
     // Output
-    int generateCode();
-    static std::vector<std::string> splitStr(std::string str, char pattern = ',')
+    ParsedStruct getParsed();
+
+    static std::vector<std::string>&& splitStr(std::string str, char pattern = ',')
     {
         /**
          * TODO: replace std::string.substr() by ParserClass::subStr()
@@ -63,12 +66,16 @@ public:
         {
             if (str[i] == pattern)
             {
+                while(str[j] != ' ')
+                {
+                    ++j;
+                }
                 strLst.push_back(str.substr(j, i - j));
                 //ParserClass::subStr(str, j, i);
                 j = i + 1;
             }
         }
-        return strLst;
+        return std::move(strLst);
     }
     static char* subStr(std::string str, int start, int end)
     {

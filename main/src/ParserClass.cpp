@@ -2,13 +2,14 @@
 #include <vector>
 #include <string>
 #include "ParserClass.h"
+#include "parsedStruct.h"
 
 const wchar_t* ParserClass::SELECT_VAR = L"SELECT ATTRIBUTE(S):";
 const wchar_t* ParserClass::NUM_OF_GROUPING = L"NUMBER OF GROUPING VARIABLES(n):";
 const wchar_t* ParserClass::GROUPING_ATTRIBUTE = L"GROUPING ATTRIBUTES(V):";
 const wchar_t* ParserClass::AGG_FUNCS = L"F-VECT([F]):";
 const wchar_t* ParserClass::SELECT_CONDS = L"SELECT CONDITION-VECT([σ]):";
-const wchar_t* ParserClass::HAVING_CONDS = L"HAVING_CONDITION(G)";
+const char* ParserClass::HAVING_CONDS = "HAVING_CONDITION(G)";
 
 ParserClass::ParserClass()
 {
@@ -26,7 +27,7 @@ void ParserClass::readInput()
         if (line == ParserClass::SELECT_VAR)
         {
             std::cin >> nextLine;
-            this->getSelectVar(nextLine);
+            this->setSelectVar(nextLine);
         }
         else if (line == ParserClass::NUM_OF_GROUPING)
         {
@@ -34,45 +35,54 @@ void ParserClass::readInput()
             std::cin >> theNum;
             this->inputs.num = theNum;
         }
+        else if (line == ParserClass::GROUPING_ATTRIBUTE)
+        {
+            std::cin >> nextLine;
+            this->inputs.group_var = ParserClass::splitStr(nextLine);
+        }
         else if (line == ParserClass::AGG_FUNCS)
         {
             std::cin >> nextLine;
-            this->getAggFunc(nextLine);
+            this->setAggFunc(nextLine);
         }
         else if (line == ParserClass::SELECT_CONDS)
         {
-            for (int i = 0; i < this->inputs.num; ++i)
+            /*
+             * The number of lines in SELECT CONDITION-VECT([σ]) is unknown.
+             * So we parse SELECT COND and HAVING COND together. 
+             */
+            do
             {
-                std::cin >> nextLine;
-                this->getSelectCond(nextLine);
-            }
-        }
-        else if (line == ParserClass::HAVING_CONDS)
-        {
-            std::getline(std::cin, nextLine);
-            this->getHavingCond(nextLine);
+                if (nextLine != ParserClass::HAVING_CONDS)
+                    this->setSelectCond(nextLine);
+                else
+                {
+                    std::cin >> nextLine;
+                    this->setHavingCond(nextLine);
+                }
+            } while (std::getline(std::cin, nextLine));
         }
     }
 }
 
-void ParserClass::getSelectVar(std::string line)
+void ParserClass::setSelectVar(std::string line)
 {
     std::vector<std::string> vars = ParserClass::splitStr(line);
     this->inputs.select_var = vars;
 }
 
-void ParserClass::getAggFunc(std::string line)
+void ParserClass::setAggFunc(std::string line)
 {
     std::vector<std::string> funcs = ParserClass::splitStr(line);
     this->inputs.aggre_funcs = funcs;
 }
 
-inline void ParserClass::getSelectCond(std::string line)
+inline void ParserClass::setSelectCond(std::string line)
 {
     this->inputs.cond_vars.emplace_back(line);
 }
 
-inline void ParserClass::getHavingCond(std::string line)
+inline void ParserClass::setHavingCond(std::string line)
 {
     this->inputs.having_conds = line;
 }
@@ -87,3 +97,35 @@ inline void ParserClass::getHavingCond(std::string line)
 /**
  * TODO: Implements funcs left;
  */
+
+inline void ParserClass::parseSelectAttr()
+{
+    this->parsedInputs.selectAttr = this->inputs.select_var;
+}
+
+inline void ParserClass::parseHavingConds()
+{
+    this->parsedInputs.havingCond = this->inputs.having_conds;
+}
+
+void ParserClass::parseMFStruct()
+{
+    // parse Agg Funcs:
+    std::map<int, std::string> parsedAggFuncs = this->parseAggFunc();
+    std::map<int, std::string> parsedSelectCond = this->parseSelectCond();
+    // parse Group Attributes:
+
+    for (int i = 0; i < this->parsedInputs.partition_size; ++i)
+    {
+        this->parsedInputs.partition_size = this->inputs.group_var.size();
+        this->parsedInputs.partitions.emplace_back(inputs.group_var[i], parsedAggFuncs, parsedSelectCond);
+        //Test required here!
+    }
+}
+
+ParsedStruct ParserClass::getParsed()
+{
+    return this->parsedInputs;
+    // reture an Obj. Opt requried in future. Check Effective Modern C++ Item 25
+    // ROV here
+}
