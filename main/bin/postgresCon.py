@@ -1,12 +1,22 @@
 import psycopg2 as pstgre
+import re
 from collections import defaultdict
+from enum import Enum
 from MFStruct import operateClass, MFTable
 
 '''
     Algorithm 2.1 in the paper.
 '''
 
+class aggfunc_enum(Enum):
+    SUM = "sum"
+    MAX = "max"
+    MIN = "min"
+    COUNT = "count"
+    AVG = "avg"
+
 class postgresCon():
+    avg_func_dict = dict()
     def __init__(self, user, pwd, obj : operateClass):
         db_name = 'sales'
         host = 'localhost'
@@ -24,7 +34,7 @@ class postgresCon():
 
     def get_group_attr_data(self):
         if self.cur is None:
-            self.cur = self.conn.cursor()
+            self.cur = self.conn.cursor(cursor_factory=pstgre.extras.DictCursor)
         while(True):
             try:
                 select_attr = self.operate_obj.mfstruct.group_attr
@@ -55,14 +65,57 @@ class postgresCon():
                             pivot = False
                             break
                     if pivot is True:
-                        self.check_select_cond(i, j)
+                        self.check_select_cond(i, j, output)
                 '''
                     获取数据，判断条件
                 '''
 
-    def check_select_cond(self, var : int, line_in_table : int):
-        agg_func = self.operate_obj.mfstruct.agg_func_parsed[lin]
-        
+    def check_select_cond(self, var : int, line_in_table : int, line_data):
+        select_conds = self.operate_obj.select_conds[var]
+        agg_funcs = self.operate_obj.mfstruct.agg_func_parsed[var]
+        for cond in select_conds:
+            try:
+                line_data[cond]
+            except KeyError as ke:
+                print(ke)
+            finally:
+                None
+
+    def update_agg_func_values(self, var : int, line_in_table : int, line_data):
+        agg_funcs = self.operate_obj.mfstruct.agg_func_parsed[var]
+        for agg_func in agg_funcs:
+            func, var_name = postgresCon.unpack_agg_func(agg_func)
+            if self.mf_table[line_in_table].agg_func[agg_func] == 0:
+                if func == aggfunc_enum.COUNT:
+                    self.mf_table[line_in_table].agg_func[agg_func] += 1
+                else:
+                    self.mf_table[line_in_table].agg_func[agg_func] = line_data[var_name]
+            else:
+                if func == aggfunc_enum.COUNT:
+                    self.mf_table[line_in_table].agg_func[agg_func] += 1
+                if func == aggfunc_enum.SUM:
+                    self.mf_table[line_in_table].agg_func[agg_func] += line_data[var_name]
+                if func == aggfunc_enum.MAX:
+                    tmp = self.mf_table[line_in_table].agg_func[agg_func]
+                    tmp = max(tmp, line_data[var_name])
+                    self.mf_table[line_in_table].agg_func[agg_func] = tmp
+                if func == aggfunc_enum.MIN:
+                    tmp = self.mf_table[line_in_table].agg_func[agg_func]
+                    tmp = min(tmp, line_data[var_name])
+                    self.mf_table[line_in_table].agg_func[agg_func] = tmp
+                if func == aggfunc_enum.AVG:
+                    count = postgresCon.avg_func_dict[agg_func]["size"]
+                    num = postgresCon.avg_func_dict[agg_func]["value"]
+                    new_avg = (num * count + line_data[var_name]) / (count + 1)
+                    self.mf_table[line_in_table].agg_func[agg_func] = new_avg
+                    postgresCon.avg_func_dict[agg_func]["size"] += 1
+                    postgresCon.avg_func_dict[agg_func]["value"] = new_avg
+
+    @staticmethod
+    def unpack_agg_func(agg_func : str):
+        var_name = re.search(r"\((.*)\)", agg_func)
+        func_name = re.search(r".+?(\()", agg_func)
+        return func_name, var_name
 
     def closeCur(self):
         if self.cur.closed is False:
