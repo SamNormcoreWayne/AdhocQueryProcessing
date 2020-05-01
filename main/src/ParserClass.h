@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "ParserClassException.hpp"
 #include "inputStruct.h"
 #include "parsedStruct.h"
+#include "nlohmann/json.hpp"
 
 /**
  * INPUT:
@@ -13,6 +15,8 @@
  * SELECT CONDITION-VECT([σ])
  * HAVING_CONDITION(G)
  */
+
+using json = nlohmann::json;
 
 class ParserClass
 {
@@ -81,5 +85,27 @@ public:
     {
         char* outStr = new char[end - start + 1];
         
+    }
+
+    std::string convertAggFuncToJSON() const throw()
+    {
+        if (this->parsedInputs.aggFunc.size() == 0)
+        {
+            throw ZeroSizeException;
+            return "";
+        }
+        json data(this->parsedInputs.aggFunc);
+        return data.dump();
+    }
+
+    std::string convertSelectCondToJSON() const throw()
+    {
+        if (this->parsedInputs.selectCondVect.size() == 0)
+        {
+            throw ZeroSizeException;
+            return "";
+        }
+        json data(this->parsedInputs.selectCondVect);
+        return data.dump();
     }
 };
