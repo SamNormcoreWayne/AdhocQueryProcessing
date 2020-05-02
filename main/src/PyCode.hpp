@@ -14,11 +14,15 @@ class PyCode
 private:
     ParsedStruct mfStruct;
 protected:
-    int generateMFStructPy(std::string) const throw();
-    int generatePostgresConPy(std::string) const throw();
-    int generateMainPy(std::string) const throw();
-
-    static std::string generateTab(int);
+    static std::string generateTab(int i)
+    {
+        std::string outStr;
+        for (int j = 0; j < i; ++j)
+        {
+            outStr += "\t";
+        }
+        return outStr;
+    }
 public:
     PyCode() = default;
     PyCode(const ParsedStruct& oldStruct)
@@ -30,5 +34,8 @@ public:
         this->mfStruct = oldStruct;
     }
 
-    int main(std::string);
+    int generateMFStructPy(std::string) throw();
+    int generatePostgresConPy(std::string) throw();
+    int generateMainPy(std::string) throw();
+    int mainFunc(std::string) noexcept;
 };

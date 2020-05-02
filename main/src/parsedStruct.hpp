@@ -23,6 +23,11 @@ struct ParsedStruct
     ParsedStruct(const ParsedStruct&) = default;
     ParsedStruct& operator=(const ParsedStruct& oldStruct)
     {
-        ParsedStruct(oldStruct);
+        this->selectAttr = oldStruct.selectAttr;
+        this->havingCond = oldStruct.havingCond;
+        this->groupAttr = oldStruct.groupAttr;
+        this->aggFunc = oldStruct.aggFunc;
+        this->selectCondVect = oldStruct.selectCondVect;
+        return *this;
     }
 };

@@ -2,3 +2,5 @@
 **/**/.vscode
 **/**/__pycache__
 **/**/*.pyc
+main/test/**/*.out
+main/lib/**/*.o
