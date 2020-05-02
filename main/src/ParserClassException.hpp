@@ -1,10 +1,22 @@
 #include <string>
 #include <exception>
 
-struct ZeroSizeException : public std::exception
+namespace ParserClassException
 {
-    virtual const char* what() const throw()
+    struct ZeroSizeException : public std::exception
     {
-        return "The size of the container is 0!";
-    }
-}ZeroSizeException;
+        virtual const char* what() const throw()
+        {
+            return "The size of the container is 0!";
+        }
+    };
+
+    struct FileNotOpenException : public std::exception
+    {
+        virtual const char* what() const throw()
+        {
+            return "Cannot open this file. Please Check";
+        }
+    };
+}
+

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "ParserClass.h"
-#include "parsedStruct.h"
+#include "ParserClass.hpp"
+#include "parsedStruct.hpp"
 
 const wchar_t* ParserClass::SELECT_VAR = L"SELECT ATTRIBUTE(S):";
 const wchar_t* ParserClass::NUM_OF_GROUPING = L"NUMBER OF GROUPING VARIABLES(n):";

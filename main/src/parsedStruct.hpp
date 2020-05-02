@@ -20,4 +20,9 @@ struct ParsedStruct
     std::map<int, std::string> aggFunc;
     std::map<int, std::string> selectCondVect;
     ParsedStruct() = default;
+    ParsedStruct(const ParsedStruct&) = default;
+    ParsedStruct& operator=(const ParsedStruct& oldStruct)
+    {
+        ParsedStruct(oldStruct);
+    }
 };
