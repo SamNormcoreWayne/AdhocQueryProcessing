@@ -23,6 +23,10 @@ protected:
         }
         return outStr;
     }
+
+    int generateMFStructPy(std::string) throw();
+    int generatePostgresConPy(std::string) throw();
+    int generateMainPy(std::string) throw();
 public:
     PyCode() = default;
     PyCode(const ParsedStruct& oldStruct)
@@ -32,10 +36,8 @@ public:
     PyCode& operator= (const ParsedStruct& oldStruct)
     {
         this->mfStruct = oldStruct;
+        return *this;
     }
 
-    int generateMFStructPy(std::string) throw();
-    int generatePostgresConPy(std::string) throw();
-    int generateMainPy(std::string) throw();
     int mainFunc(std::string) noexcept;
 };

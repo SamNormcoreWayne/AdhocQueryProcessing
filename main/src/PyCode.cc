@@ -8,8 +8,11 @@ int PyCode::mainFunc(std::string cwd) noexcept
 {
     try
     {
+        std::cout << "Now generating MFStruct.py" << std::endl;
         this->generateMFStructPy(cwd);
+        std::cout << "Now generating PostrgresCon.py" << std::endl;
         this->generatePostgresConPy(cwd);
+        std::cout << "Now generating Main.py" << std::endl;
         this->generateMainPy(cwd);
     }
     catch(ParserClassException::FileNotOpenException &e)
