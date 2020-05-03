@@ -1,4 +1,10 @@
 /.vscode
 **/**/.vscode
 **/**/__pycache__
+<<<<<<< HEAD
 **/**/*.pyc
+=======
+**/**/*.pyc
+main/test/**/*.out
+main/lib/**/*.o
+>>>>>>> InputParser

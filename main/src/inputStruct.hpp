@@ -14,7 +14,7 @@
 struct InputStruct
 {
     std::vector<std::string> select_var;
-    std::vector<std::string> group_var;
+    std::string group_var;
     std::vector<std::string> aggre_funcs;
     std::vector<std::string> cond_vars;
 
