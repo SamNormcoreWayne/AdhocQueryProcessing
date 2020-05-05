@@ -3,6 +3,7 @@ import re
 from collections import defaultdict
 from enum import Enum
 from MFStruct import operateClass, MFTable
+from prettytable import PrettyTable
 
 '''
     Algorithm 2.1 in the paper.
@@ -77,13 +78,75 @@ class postgresCon():
                     if pivot is True:
                         if(self.check_select_cond(i, j, output)):
                             self.update_agg_func_values(i, j, output)
-            
-            if self.check_having_cond():
-                '''
-                    获取数据，判断条件
-                '''
 
-    def check_having_cond():
+    def project_data(self):
+        pt = PrettyTable(self.operate_obj.select_attr_agg_func)
+        for line in self.mf_table:
+            row_lst = []
+            if self.check_having_cond(line):
+                for item in self.operate_obj.select_attr_parsed:
+                    if item in self.operate_obj.group_attr:
+                        row_lst.append(line.gourp_attr[item])
+                    else:
+                        row_lst.append(line.agg_func[item])
+                pt.add_row(row_lst)
+        return pt
+
+    def check_having_cond(self, line : MFTable):
+        having_conds = self.operate_obj.having_conds
+        reverse_polish_having_conds = postgresCon.parse_bool_expression(having_conds)
+        last_ele = []
+        bool_ele = []
+        agg_func_line = line.agg_func
+        for item in reverse_polish_having_conds:
+            if item in postgresCon.operators:
+                '''
+                    Calculate bool_ele here
+                '''
+                if item == "or":
+                    if not (bool_ele[0] or bool_ele[1]):
+                        return False
+                    else:
+                        bool_ele = [True]
+                if item == "and":
+                    if not (bool_ele[0] and bool_ele[1]):
+                        return False
+                    else:
+                        bool_ele = [True]
+            elif item in postgresCon.high_operators:
+                if item == "=":
+                    if agg_func_line[last_ele[0]] != agg_func_line[last_ele[1]]:
+                        bool_ele.extend(False)
+                    else:
+                        bool_ele.extend(True)
+                elif item == "<":
+                    if agg_func_line[last_ele[0]] < agg_func_line[last_ele[1]]:
+                        bool_ele.extend(True)
+                    else:
+                        bool_ele.extend(False)
+                elif item == ">":
+                    if agg_func_line[last_ele[0]] > agg_func_line[last_ele[1]]:
+                        bool_ele.extend(True)
+                    else:
+                        bool_ele.extend(False)
+                elif item == "<=":
+                    if agg_func_line[last_ele[0]] <= agg_func_line[last_ele[1]]:
+                        bool_ele.extend(True)
+                    else:
+                        bool_ele.extend(False)
+                elif item == ">=":
+                    if agg_func_line[last_ele[0]] >= agg_func_line[last_ele[1]]:
+                        bool_ele.extend(True)
+                    else:
+                        bool_ele.extend(False)
+                elif item == "<>":
+                    if agg_func_line[last_ele[0]] == agg_func_line[last_ele[1]]:
+                        bool_ele.extend(False)
+                    else:
+                        bool_ele.extend(True)
+                last_ele = []
+            else:
+                last_ele.append(item)
         return True
 
     def check_select_cond(self, var : int, line_in_table : int, line_data):
@@ -194,19 +257,19 @@ class postgresCon():
         ele_lst = []
         for item in no_and_str:
             item.strip()
-            ele_lst.extend(item.strip() for item in item.split("or"))
+            ele_lst.append(item.strip() for item in item.split("or"))
         
         for item in ele_lst:
             if item in postgresCon.high_operators:
-                operator_stack.extend(item)
+                operator_stack.append(item)
             elif item in postgresCon.operators:
                 while operator_stack:
-                    reverse_polish_stack.extend(operator_stack.pop())
+                    reverse_polish_stack.append(operator_stack.pop())
                 operator_stack.append(item)
             else:
                 reverse_polish_stack.append(item)
             while operator_stack:
-                reverse_polish_stack.extend(operator_stack.pop())
+                reverse_polish_stack.append(operator_stack.pop())
         return reverse_polish_stack
 
     def closeCur(self):

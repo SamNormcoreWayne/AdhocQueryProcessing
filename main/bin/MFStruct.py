@@ -38,6 +38,14 @@ class operateClass():
                 raise(TypeError("Cannot find this aggregate functions in SQL standards."))
         return parsed_func
 
+    def parse_select_attr(self):
+        for item in self.select_attr_agg_func:
+            if item in self.group_attr:
+                self.select_attr_parsed.append(item)
+            else:
+                tmp = item.split("_")
+                self.select_attr_parsed.append(tmp[1] + "({}.{})".format(tmp[0], tmp[2]))
+            
 
 class MFTable():
     def __init__(self, attr_lst : list, agg_lst : list = []):
