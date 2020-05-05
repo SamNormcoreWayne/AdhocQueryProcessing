@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "inputStruct.h"
-#include "parsedStruct.h"
+#include "ParserClassException.hpp"
+#include "inputStruct.hpp"
+#include "parsedStruct.hpp"
+#include "nlohmann/json.hpp"
 
 /**
  * INPUT:
@@ -13,6 +15,8 @@
  * SELECT CONDITION-VECT([σ])
  * HAVING_CONDITION(G)
  */
+
+using json = nlohmann::json;
 
 class ParserClass
 {
@@ -28,11 +32,15 @@ protected:
     static const wchar_t* AGG_FUNCS;
     static const wchar_t* SELECT_CONDS;
     static const char* HAVING_CONDS;
+
+    std::map<int, std::string>&& parseAggFunc();
+    std::map<int, std::string>&& parseSelectCond();
 public:
     ParserClass();
     ~ParserClass();
     ParserClass(const ParserClass &) = delete;
     ParserClass& operator= (const ParserClass &) = delete;
+    void readInput();
 
     // class methods for attributes operators;
     void setSelectVar(std::string line);
@@ -42,11 +50,8 @@ public:
     void setNum();
 
     // class methods for specific functions;
-    void readInput();
     inline void parseSelectAttr();
     inline void parseHavingConds();
-    std::map<int, std::string>&& parseAggFunc();
-    std::map<int, std::string>&& parseSelectCond();
     void parseMFStruct();
 
     // Output
@@ -81,5 +86,27 @@ public:
     {
         char* outStr = new char[end - start + 1];
         
+    }
+
+    std::string convertAggFuncToJSON() const throw()
+    {
+        if (this->parsedInputs.aggFunc.size() == 0)
+        {
+            throw ParserClassException::ZeroSizeException();
+            return "";
+        }
+        json data(this->parsedInputs.aggFunc);
+        return data.dump();
+    }
+
+    std::string convertSelectCondToJSON() const throw()
+    {
+        if (this->parsedInputs.selectCondVect.size() == 0)
+        {
+            throw ParserClassException::ZeroSizeException();
+            return "";
+        }
+        json data(this->parsedInputs.selectCondVect);
+        return data.dump();
     }
 };

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "ParserClass.h"
-#include "parsedStruct.h"
+#include "ParserClass.hpp"
+#include "parsedStruct.hpp"
 
 const wchar_t* ParserClass::SELECT_VAR = L"SELECT ATTRIBUTE(S):";
 const wchar_t* ParserClass::NUM_OF_GROUPING = L"NUMBER OF GROUPING VARIABLES(n):";
@@ -38,7 +38,7 @@ void ParserClass::readInput()
         else if (line == ParserClass::GROUPING_ATTRIBUTE)
         {
             std::cin >> nextLine;
-            this->inputs.group_var = ParserClass::splitStr(nextLine);
+            this->inputs.group_var = nextLine;
         }
         else if (line == ParserClass::AGG_FUNCS)
         {
@@ -114,13 +114,49 @@ void ParserClass::parseMFStruct()
     std::map<int, std::string> parsedAggFuncs = this->parseAggFunc();
     std::map<int, std::string> parsedSelectCond = this->parseSelectCond();
     // parse Group Attributes:
+    this->parsedInputs.groupAttr = this->inputs.group_var;
+    this->parsedInputs.aggFunc = parsedAggFuncs;
+    this->parsedInputs.selectCondVect = parsedSelectCond;
+}
 
-    for (int i = 0; i < this->parsedInputs.partition_size; ++i)
+std::map<int, std::string>&& ParserClass::parseAggFunc()
+{
+    std::map<int, std::string> agg_map;
+    for (auto aggFunc : this->inputs.aggre_funcs)
     {
-        this->parsedInputs.partition_size = this->inputs.group_var.size();
-        this->parsedInputs.partitions.emplace_back(inputs.group_var[i], parsedAggFuncs, parsedSelectCond);
-        //Test required here!
+        if (aggFunc[0] != '1')
+        {
+            if (agg_map.find(0) == agg_map.end())
+            {
+                agg_map[0] = aggFunc;
+                continue;
+            }
+            agg_map[0] += ", " + aggFunc;
+        }
+        else
+        {
+            int index = aggFunc[0] - '0';
+            if (agg_map.find(index) == agg_map.end())
+            {
+                agg_map[index] = aggFunc;
+                continue;
+            }
+            agg_map[0] += ", " + aggFunc;
+        }
     }
+    return std::move(agg_map);
+}
+
+std::map<int, std::string>&& ParserClass::parseSelectCond()
+{
+    std::map<int, std::string> select_map;
+    for (auto select_cond : this->inputs.select_var)
+    {
+        int index = select_cond[0] - '0';
+        select_map[index] = select_cond;
+    }
+
+    return std::move(select_map);
 }
 
 ParsedStruct ParserClass::getParsed()
