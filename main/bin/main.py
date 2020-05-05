@@ -1,3 +1,4 @@
+from prettytable import PrettyTable
 from MFStruct import operateClass
 from postgresCon import postgresCon
 
@@ -17,6 +18,7 @@ def main():
     conn.get_group_attr_data()
     conn.main_algo()
     conn.closeDB()
-    # conn.show_data()
+    output = conn.project_data()
+    print(output)
 if __name__ == "__main__":
     main()
