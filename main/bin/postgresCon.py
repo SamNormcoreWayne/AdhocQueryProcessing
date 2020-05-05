@@ -17,6 +17,8 @@ class aggfunc_enum(Enum):
 
 class postgresCon():
     avg_func_dict = dict()
+    operators = ["and", "or"]
+    high_operators = ["=", "<", ">", "<>", "<=", ">="]
     def __init__(self, user, pwd, obj : operateClass):
         db_name = 'sales'
         host = 'localhost'
@@ -51,8 +53,8 @@ class postgresCon():
                 self.mf_table.append(mftable)
 
     def main_algo(self):
-        select_attr = self.operate_obj.mfstruct.group_attr
-        for i in range(len(self.operate_obj.mfstruct.agg_func_parsed)):
+        select_attr = self.operate_obj.group_attr
+        for i in range(len(self.operate_obj.agg_func_parsed)):
             if self.cur is None:
                 self.cur = self.conn.cursor()
             while(True):
@@ -62,60 +64,150 @@ class postgresCon():
                     pivot = True
                     for item in select_attr:
                         if output[item] != self.mf_table[j].group_attr[item]:
+                            '''
+                                Check x.gourp_attr == group_attr?
+                                if !=
+                            '''
                             pivot = False
                             break
+                    '''
+                        if all x.group_attr == group_attr
+                        start to check those select with aggFuncs.
+                    '''
                     if pivot is True:
-                        self.check_select_cond(i, j, output)
+                        if(self.check_select_cond(i, j, output)):
+                            self.update_agg_func_values(i, j, output)
+            
+            if self.check_having_cond():
                 '''
                     获取数据，判断条件
                 '''
 
+    def check_having_cond():
+        return True
+
     def check_select_cond(self, var : int, line_in_table : int, line_data):
         select_conds = self.operate_obj.select_conds[var]
-        agg_funcs = self.operate_obj.mfstruct.agg_func_parsed[var]
-        for cond in select_conds:
-            try:
-                line_data[cond]
-            except KeyError as ke:
-                print(ke)
-            finally:
-                None
+        reverse_polish_select_conds = postgresCon.parse_bool_expression(select_conds)
+        last_ele = []
+        bool_ele = []
+        '''
+            Parse X.var in reverse_polish_list
+        '''
+        for item in reverse_polish_select_conds:
+            if item in postgresCon.operators:
+                '''
+                    Calculate bool_ele here
+                '''
+                if item == "or":
+                    if not (bool_ele[0] or bool_ele[1]):
+                        return False
+                    else:
+                        bool_ele = [True]
+                if item == "and":
+                    if not (bool_ele[0] and bool_ele[1]):
+                        return False
+                    else:
+                        bool_ele = [True]
+            elif item in postgresCon.high_operators:
+                '''
+                    Calculate bool value of last_ele here.
+                    assign bool_ele : list here.
+                '''
+                if item == "=":
+                    if postgresCon.unpack_agg_func(last_ele[1]):
+                        if line_data[last_ele[0]] != self.mf_table[line_in_table].agg_func[last_ele[1]]:
+                            bool_ele.extend(False)
+                        else:
+                            bool_ele.extend(True)
+                    else:
+                        if line_data[last_ele[0]] != last_ele[1]:
+                            bool_ele.extend(False)
+                        else:
+                            bool_ele.extend(True)
+            else:
+                if item.find("."):
+                    _, value = item.split(".")
+                else:
+                    value = item
+                last_ele.append(value)
+        return True
 
     def update_agg_func_values(self, var : int, line_in_table : int, line_data):
-        agg_funcs = self.operate_obj.mfstruct.agg_func_parsed[var]
+        '''
+            @param: var - sequence of grouping variables.
+            @param: line_in_table - the line number in mftable[]
+            @param: line_data - the data of this row in out table
+            @var: key_name - x.var or var
+            @var: agg_funcs - {"sum(x.var)" : 0, "sum(var)" : 0}
+            @var: func - func name in agg_funcs e.g. sum()
+            @var: var_name - var name in agg_funcs e.g. x.var
+        '''
+        
+        agg_funcs = self.operate_obj.agg_func_parsed[var]
         for agg_func in agg_funcs:
             func, var_name = postgresCon.unpack_agg_func(agg_func)
-            if self.mf_table[line_in_table].agg_func[agg_func] == 0:
+            if var == 0:
+                key_name = agg_func
+            else:
+                key_name = var + "." + agg_func
+            if self.mf_table[line_in_table].agg_func[key_name] == 0:
                 if func == aggfunc_enum.COUNT:
-                    self.mf_table[line_in_table].agg_func[agg_func] += 1
+                    self.mf_table[line_in_table].agg_func[key_name] += 1
                 else:
-                    self.mf_table[line_in_table].agg_func[agg_func] = line_data[var_name]
+                    self.mf_table[line_in_table].agg_func[key_name] = line_data[var_name]
             else:
                 if func == aggfunc_enum.COUNT:
-                    self.mf_table[line_in_table].agg_func[agg_func] += 1
+                    self.mf_table[line_in_table].agg_func[key_name] += 1
                 if func == aggfunc_enum.SUM:
-                    self.mf_table[line_in_table].agg_func[agg_func] += line_data[var_name]
+                    self.mf_table[line_in_table].agg_func[key_name] += line_data[var_name]
                 if func == aggfunc_enum.MAX:
-                    tmp = self.mf_table[line_in_table].agg_func[agg_func]
+                    tmp = self.mf_table[line_in_table].agg_func[key_name]
                     tmp = max(tmp, line_data[var_name])
-                    self.mf_table[line_in_table].agg_func[agg_func] = tmp
+                    self.mf_table[line_in_table].agg_func[key_name] = tmp
                 if func == aggfunc_enum.MIN:
-                    tmp = self.mf_table[line_in_table].agg_func[agg_func]
+                    tmp = self.mf_table[line_in_table].agg_func[key_name]
                     tmp = min(tmp, line_data[var_name])
-                    self.mf_table[line_in_table].agg_func[agg_func] = tmp
+                    self.mf_table[line_in_table].agg_func[key_name] = tmp
                 if func == aggfunc_enum.AVG:
-                    count = postgresCon.avg_func_dict[agg_func]["size"]
-                    num = postgresCon.avg_func_dict[agg_func]["value"]
+                    count = postgresCon.avg_func_dict[key_name]["size"]
+                    num = postgresCon.avg_func_dict[key_name]["value"]
                     new_avg = (num * count + line_data[var_name]) / (count + 1)
-                    self.mf_table[line_in_table].agg_func[agg_func] = new_avg
-                    postgresCon.avg_func_dict[agg_func]["size"] += 1
-                    postgresCon.avg_func_dict[agg_func]["value"] = new_avg
+                    self.mf_table[line_in_table].agg_func[key_name] = new_avg
+                    postgresCon.avg_func_dict[key_name]["size"] += 1
+                    postgresCon.avg_func_dict[key_name]["value"] = new_avg
 
     @staticmethod
     def unpack_agg_func(agg_func : str):
-        var_name = re.search(r"\((.*)\)", agg_func)
-        func_name = re.search(r".+?(\()", agg_func)
-        return func_name, var_name
+        try:
+            func_name, var_name = re.match(r"^\s*(\w+)\s*\((.*)\)", agg_func).groups()
+        except AttributeError:
+            return False
+        finally:
+            return func_name, var_name
+
+    @staticmethod
+    def parse_bool_expression(bool_str : str):
+        operator_stack = []
+        reverse_polish_stack = []
+        no_and_str = str.split("and")
+        ele_lst = []
+        for item in no_and_str:
+            item.strip()
+            ele_lst.extend(item.strip() for item in item.split("or"))
+        
+        for item in ele_lst:
+            if item in postgresCon.high_operators:
+                operator_stack.extend(item)
+            elif item in postgresCon.operators:
+                while operator_stack:
+                    reverse_polish_stack.extend(operator_stack.pop())
+                operator_stack.append(item)
+            else:
+                reverse_polish_stack.append(item)
+            while operator_stack:
+                reverse_polish_stack.extend(operator_stack.pop())
+        return reverse_polish_stack
 
     def closeCur(self):
         if self.cur.closed is False:

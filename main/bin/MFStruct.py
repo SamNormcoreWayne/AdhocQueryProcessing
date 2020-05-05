@@ -41,6 +41,6 @@ class operateClass():
 
 class MFTable():
     def __init__(self, attr_lst : list, agg_lst : list = []):
-        self.group_attr = dict.fromkeys(attr_lst, 0)
+        self.group_attr = dict.fromkeys(list, attr_lst, 0)
         if len(agg_lst) != 0:
-            self.agg_func = dict.fromkeys(agg_lst, 0)
+            self.agg_func = dict.fromkeys(list, agg_lst, 0)
