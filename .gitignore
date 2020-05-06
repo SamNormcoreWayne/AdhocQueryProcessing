@@ -4,3 +4,4 @@
 **/**/*.pyc
 main/test/**/*.out
 main/lib/**/*.o
+**/**/build
