@@ -115,8 +115,8 @@ void ParserClass::parseMFStruct()
     std::map<int, std::string> parsedSelectCond = this->parseSelectCond();
     // parse Group Attributes:
     this->parsedInputs.groupAttr = this->inputs.group_var;
-    this->parsedInputs.aggFunc = parsedAggFuncs;
-    this->parsedInputs.selectCondVect = parsedSelectCond;
+    this->parsedInputs.aggFunc = ParserClass::convertMapToJSON(parsedAggFuncs);
+    this->parsedInputs.selectCondVect = ParserClass::convertMapToJSON(parsedSelectCond);
 }
 
 std::map<int, std::string>&& ParserClass::parseAggFunc()

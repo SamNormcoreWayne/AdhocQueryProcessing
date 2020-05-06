@@ -6,7 +6,7 @@ from MFStruct import operateClass, MFTable
 from prettytable import PrettyTable
 
 '''
-    Algorithm 2.1 in the paper.
+    Algorithm 3.1 in the paper.
 '''
 
 class aggfunc_enum(Enum):

@@ -14,11 +14,11 @@
 
 struct ParsedStruct
 {
-    std::vector<std::string> selectAttr;
+    std::string selectAttr;
     std::string havingCond;
     std::string groupAttr;
-    std::map<int, std::string> aggFunc;
-    std::map<int, std::string> selectCondVect;
+    std::string aggFunc;
+    std::string selectCondVect;
     ParsedStruct() = default;
     ParsedStruct(const ParsedStruct&) = default;
     ParsedStruct& operator=(const ParsedStruct& oldStruct)

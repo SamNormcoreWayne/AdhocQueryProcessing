@@ -88,25 +88,14 @@ public:
         
     }
 
-    std::string convertAggFuncToJSON() const throw()
+    std::string convertMapToJSON(std::map<int, std::string> dict) const throw()
     {
-        if (this->parsedInputs.aggFunc.size() == 0)
+        if (dict.size() == 0)
         {
             throw ParserClassException::ZeroSizeException();
             return "";
         }
-        json data(this->parsedInputs.aggFunc);
-        return data.dump();
-    }
-
-    std::string convertSelectCondToJSON() const throw()
-    {
-        if (this->parsedInputs.selectCondVect.size() == 0)
-        {
-            throw ParserClassException::ZeroSizeException();
-            return "";
-        }
-        json data(this->parsedInputs.selectCondVect);
+        json data(dict);
         return data.dump();
     }
 };

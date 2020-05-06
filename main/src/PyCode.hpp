@@ -14,16 +14,6 @@ class PyCode
 private:
     ParsedStruct mfStruct;
 protected:
-    static std::string generateTab(int i)
-    {
-        std::string outStr;
-        for (int j = 0; j < i; ++j)
-        {
-            outStr += "\t";
-        }
-        return outStr;
-    }
-
     int generateMFStructPy(std::string) throw();
     int generatePostgresConPy(std::string) throw();
     int generateMainPy(std::string) throw();

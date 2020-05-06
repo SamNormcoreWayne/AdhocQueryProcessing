@@ -8,6 +8,8 @@
 #define GetCurrentDir getcwd
 #endif
 #include "ParserClass.hpp"
+#include "parsedStruct.hpp"
+#include "PyCode.hpp"
 
 std::string GetCurDirByStr()
 {
@@ -16,20 +18,34 @@ std::string GetCurDirByStr()
     return static_cast<std::string>(buff);
 }
 
+int generatePyCode(const ParsedStruct parsedData)
+{
+    PyCode PyObj(parsedData);
+    std::string dir = GetCurDirByStr();
+    if (PyObj.mainFunc(dir) == 0)
+    {
+        return 0;
+    }
+    return -1;
+}
+
 int main(int argc, char* argv[])
 {
-    std::cout << "Pick Reading Method, Type \"FILE\" or \"STREAM\". Type QUIT/Q/q to quit: " << std::endl;
-    std::string MethodStr;
-    std::cin >> MethodStr;
+    
     ParserClass ParserDB;
     while(true)
     {
+        std::cout << "Pick Reading Method, Type \"FILE\" or \"STREAM\". Type QUIT/Q/q to quit: " << std::endl;
+        std::string MethodStr;
+        std::cin >> MethodStr;
         if (MethodStr == "STREAM")
         {
             ParserDB.readInput();
             ParserDB.parseSelectAttr();
             ParserDB.parseHavingConds();
             ParserDB.parseMFStruct();
+            ParsedStruct parsedData = ParserDB.getParsed();
+            generatePyCode(parsedData);
             /*
              * Generate Python Code here
              */

@@ -45,7 +45,7 @@ class operateClass():
             else:
                 tmp = item.split("_")
                 self.select_attr_parsed.append(tmp[1] + "({}.{})".format(tmp[0], tmp[2]))
-            
+
 
 class MFTable():
     def __init__(self, attr_lst : list, agg_lst : list = []):
