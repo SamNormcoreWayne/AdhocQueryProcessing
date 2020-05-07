@@ -75,7 +75,7 @@ public:
                 //std::cout << str.substr(j, i - j) << std::endl;
                 strLst.push_back(str.substr(j, i - j));
                 //ParserClass::subStr(str, j, i);
-                while(str[i] != ' ')
+                while(str[i + 1] == ' ')
                 {
                     ++i;
                 }

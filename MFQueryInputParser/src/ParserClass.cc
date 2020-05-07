@@ -113,7 +113,30 @@ void ParserClass::parseSelectAttr()
 
 void ParserClass::parseHavingConds()
 {
-    this->parsedInputs.havingCond = this->inputs.having_conds;
+    std::vector<std::string> tmp_vec = ParserClass::splitStr(this->inputs.having_conds, ' ');
+    std::cout << tmp_vec[0] << std::endl;
+    this->parsedInputs.havingCond = "";
+    for (int i = 0; i < tmp_vec.size(); ++i)
+    {
+        if (tmp_vec[i].size() > 3)
+        {
+            std::vector<std::string> func_splited = ParserClass::splitStr(tmp_vec[i], '_');
+            std::string func_parsed = "";
+            if (func_splited.size() == 3)
+            {
+                func_parsed = func_splited[0] + "." + func_splited[1] + "(" + func_splited[2] + ")";
+            }
+            else
+            {
+                func_parsed = func_splited[0] + "(" + func_splited[1] + ")";
+            }
+            tmp_vec[i] = func_parsed;
+            std::cout << func_parsed << std::endl;
+        }
+        if (i != tmp_vec.size() - 1)
+            tmp_vec[i] += ' ';
+        this->parsedInputs.havingCond += tmp_vec[i];
+    }
 }
 
 void ParserClass::parseMFStruct()
