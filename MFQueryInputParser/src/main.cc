@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
     ParserClass ParserDB;
     while(true)
     {
-        std::cout << "Pick Reading Method, Type \"FILE\" or \"STREAM\". Type QUIT/Q/q to quit: " << std::endl;
+        std::cout << ">>Ad-hoc Query Parsing System by ZiyuZhang!\n";
+        std::cout << ">>Pick Reading Method, Type \"FILE\" or \"STREAM\". Type QUIT/Q/q to quit: " << std::endl;
         std::string MethodStr;
         std::cin >> MethodStr;
         if (MethodStr == "STREAM")
@@ -44,6 +45,9 @@ int main(int argc, char* argv[])
             ParserDB.parseHavingConds();
             ParserDB.parseMFStruct();
             ParsedStruct parsedData = ParserDB.getParsed();
+
+            std::cout << "\n>>Start to generate Python Code! \n";
+
             generatePyCode(parsedData);
             /*
              * Generate Python Code here
@@ -51,6 +55,15 @@ int main(int argc, char* argv[])
         }
         else if (MethodStr == "FILE")
         {
+            ParserDB.readInput();
+            ParserDB.parseSelectAttr();
+            ParserDB.parseHavingConds();
+            ParserDB.parseMFStruct();
+            ParsedStruct parsedData = ParserDB.getParsed();
+
+            std::cout << "\n Start to generate Python Code! \n";
+
+            generatePyCode(parsedData);
             /*
             * Read From File and Generate Python Code
             */

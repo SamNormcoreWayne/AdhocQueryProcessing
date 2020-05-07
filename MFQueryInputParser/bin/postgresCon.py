@@ -10,17 +10,11 @@ from prettytable import PrettyTable
 	Algorithm 3.1 in the paper.
 '''
 
-class aggfunc_enum(Enum):
-	SUM = "sum"
-	MAX = "max"
-	MIN = "min"
-	COUNT = "count"
-	AVG = "avg"
-
 class postgresCon():
-	avg_func_dict = dict()
+	avg_func_dict = defaultdict(lambda : defaultdict(float))
 	operators = ["and", "or"]
 	high_operators = ["=", "<", ">", "<>", "<=", ">="]
+	highest_operators = ["+", "-", "*", "/"]
 	def __init__(self, user, pwd, host, obj : operateClass):
 		db_name = 'sales_db'
 		port = '5432'
@@ -57,32 +51,31 @@ class postgresCon():
 
 	def main_algo(self):
 		select_attr = self.operate_obj.group_attr.split(", ")
-		for i in self.operate_obj.agg_func_parsed.keys():
-			if self.cur is None:
-				self.cur = self.conn.cursor()
-			self.cur.execute("SELECT * FROM sales;")
-			while(True):
-				output = self.cur.fetchone()
-				if output is None:
-					break
-				for j in range(len(self.mf_table)):
-					pivot = True
-					for item in select_attr:
-						if output[item] != self.mf_table[j].group_attr[item]:
-							'''
-								Check x.gourp_attr == group_attr?
-								if !=
-							'''
-							pivot = False
-							break
+		if self.cur is None:
+			self.cur = self.conn.cursor()
+		self.cur.execute("SELECT * FROM sales;")
+		while(True):
+			output = self.cur.fetchone()
+			if output is None:
+				break
+			for j in range(len(self.mf_table)):
+				pivot = True
+				for item in select_attr:
+					if output[item] != self.mf_table[j].group_attr[item]:
+						'''
+							Check x.gourp_attr == group_attr?
+							if !=
+						'''
+						pivot = False
+						break
 					'''
 						if all x.group_attr == group_attr
 						start to check those select with aggFuncs.
 					'''
-					if pivot is True:
+				if pivot is True:
+					for i in self.operate_obj.agg_func_parsed.keys():
 						if(self.check_select_cond(i, j, output)):
 							self.update_agg_func_values(i, j, output)
-						break
 
 	def project_data(self):
 		pt = PrettyTable(self.operate_obj.select_attr_agg_func)
@@ -124,38 +117,62 @@ class postgresCon():
 						bool_ele = [True]
 			elif item in postgresCon.high_operators:
 				if item == "=":
-					if agg_func_line[last_ele[0]] != agg_func_line[last_ele[1]]:
+					if last_ele[0] != last_ele[1]:
 						bool_ele.append(False)
 					else:
 						bool_ele.append(True)
 				elif item == "<":
-					if agg_func_line[last_ele[0]] < agg_func_line[last_ele[1]]:
+					if last_ele[0] < last_ele[1]:
 						bool_ele.append(True)
 					else:
 						bool_ele.append(False)
 				elif item == ">":
-					if agg_func_line[last_ele[0]] > agg_func_line[last_ele[1]]:
+					if last_ele[0] > last_ele[1]:
 						bool_ele.append(True)
 					else:
 						bool_ele.append(False)
 				elif item == "<=":
-					if agg_func_line[last_ele[0]] <= agg_func_line[last_ele[1]]:
+					if last_ele[0] <= last_ele[1]:
 						bool_ele.append(True)
 					else:
 						bool_ele.append(False)
 				elif item == ">=":
-					if agg_func_line[last_ele[0]] >= agg_func_line[last_ele[1]]:
+					if last_ele[0] >= last_ele[1]:
 						bool_ele.append(True)
 					else:
 						bool_ele.append(False)
 				elif item == "<>":
-					if agg_func_line[last_ele[0]] == agg_func_line[last_ele[1]]:
+					if last_ele[0] == last_ele[1]:
 						bool_ele.append(False)
 					else:
 						bool_ele.append(True)
 				last_ele = []
+			elif item in postgresCon.highest_operators:
+				if item == "*":
+					tmp = last_ele.pop()
+					if tmp in agg_func_line.keys():
+						tmp = agg_func_line[tmp]
+					last_ele[-1] = last_ele[-1] * tmp
+				elif item == "+":
+					tmp = last_ele.pop()
+					if tmp in agg_func_line.keys():
+						tmp = agg_func_line[tmp]
+					last_ele[-1] = last_ele[-1] + tmp
+				elif item == "-":
+					tmp = last_ele.pop()
+					if tmp in agg_func_line.keys():
+						tmp = agg_func_line[tmp]
+					last_ele[-1] = last_ele[-1] - tmp
+				elif item == "/":
+					tmp = last_ele.pop()
+					if tmp in agg_func_line.keys():
+						tmp = agg_func_line[tmp]
+					last_ele[-1] = last_ele[-1] / tmp
 			else:
-				last_ele.append(item)
+				if item in agg_func_line.keys():
+					last_ele.append(agg_func_line[item])
+				else:
+					last_ele.append(int(item))
 		return bool_ele.pop()
 
 	def check_select_cond(self, var : int, line_in_table : int, line_data):
@@ -203,7 +220,7 @@ class postgresCon():
 				else:
 					value = item
 				last_ele.append(value)
-		return True
+		return bool_ele.pop()
 
 	def update_agg_func_values(self, var : int, line_in_table : int, line_data):
 		'''
@@ -224,30 +241,34 @@ class postgresCon():
 			else:
 				key_name = str(var) + "." + agg_func
 			if self.mf_table[line_in_table].agg_func[key_name] == 0:
-				if func == aggfunc_enum.COUNT:
+				if func == 'count':
 					self.mf_table[line_in_table].agg_func[key_name] += 1
+				elif func == 'avg':
+					self.mf_table[line_in_table].agg_func[key_name] = line_data[var_name]
+					postgresCon.avg_func_dict[line_in_table]["size"] = 1.0
+					postgresCon.avg_func_dict[line_in_table]["value"] = line_data[var_name]
 				else:
 					self.mf_table[line_in_table].agg_func[key_name] = line_data[var_name]
 			else:
-				if func == aggfunc_enum.COUNT:
+				if func == 'count':
 					self.mf_table[line_in_table].agg_func[key_name] += 1
-				if func == aggfunc_enum.SUM:
+				if func == 'sum':
 					self.mf_table[line_in_table].agg_func[key_name] += line_data[var_name]
-				if func == aggfunc_enum.MAX:
+				if func == 'max':
 					tmp = self.mf_table[line_in_table].agg_func[key_name]
 					tmp = max(tmp, line_data[var_name])
 					self.mf_table[line_in_table].agg_func[key_name] = tmp
-				if func == aggfunc_enum.MIN:
+				if func == 'min':
 					tmp = self.mf_table[line_in_table].agg_func[key_name]
 					tmp = min(tmp, line_data[var_name])
 					self.mf_table[line_in_table].agg_func[key_name] = tmp
-				if func == aggfunc_enum.AVG:
-					count = postgresCon.avg_func_dict[key_name]["size"]
-					num = postgresCon.avg_func_dict[key_name]["value"]
-					new_avg = (num * count + line_data[var_name]) / (count + 1)
+				if func == 'avg':
+					count = postgresCon.avg_func_dict[line_in_table]["size"]
+					num = postgresCon.avg_func_dict[line_in_table]["value"]
+					new_avg = (num * count + line_data[var_name]) / (count + 1.0)
 					self.mf_table[line_in_table].agg_func[key_name] = new_avg
-					postgresCon.avg_func_dict[key_name]["size"] += 1
-					postgresCon.avg_func_dict[key_name]["value"] = new_avg
+					postgresCon.avg_func_dict[line_in_table]["size"] += 1.0
+					postgresCon.avg_func_dict[line_in_table]["value"] = new_avg
 
 	@staticmethod
 	def unpack_agg_func(agg_func : str):
@@ -265,7 +286,11 @@ class postgresCon():
 		ele_lst = bool_str.split(" ")
 
 		for item in ele_lst:
-			if item in postgresCon.high_operators:
+			if item in postgresCon.highest_operators:
+				operator_stack.append(item)
+			elif item in postgresCon.high_operators:
+				while operator_stack and (operator_stack[-1] not in postgresCon.operators):
+					reverse_polish_stack.append(operator_stack.pop())
 				operator_stack.append(item)
 			elif item in postgresCon.operators:
 				while operator_stack:

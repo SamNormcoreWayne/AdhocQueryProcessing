@@ -16,10 +16,12 @@ void ParserClass::readInput()
     std::string line;
     std::string nextLine;
     getline(std::cin, line);
-    while(getline(std::cin, line))
+    bool flag = false;
+    while(true)
     {
-        if (line == ";")
+        if (flag)
             break;
+        getline(std::cin, line);
         if (line == ParserClass::SELECT_VAR)
         {
             getline(std::cin, nextLine);
@@ -50,16 +52,22 @@ void ParserClass::readInput()
              */
             do
             {
-                if (nextLine == ";")
-                    break;
                 if (nextLine != ParserClass::HAVING_CONDS)
                     this->setSelectCond(nextLine);
                 else
                 {
                     getline(std::cin, nextLine);
+                    if (nextLine.back() == ';')
+                    {
+                        nextLine.pop_back();
+                        flag = true;
+                    }
                     this->setHavingCond(nextLine);
+                    if (flag)
+                        break;
                 }
-            } while (getline(std::cin, nextLine));
+                getline(std::cin, nextLine);
+            } while (true);
         }
     }
 }
@@ -114,7 +122,6 @@ void ParserClass::parseSelectAttr()
 void ParserClass::parseHavingConds()
 {
     std::vector<std::string> tmp_vec = ParserClass::splitStr(this->inputs.having_conds, ' ');
-    std::cout << tmp_vec[0] << std::endl;
     this->parsedInputs.havingCond = "";
     for (int i = 0; i < tmp_vec.size(); ++i)
     {
@@ -131,7 +138,6 @@ void ParserClass::parseHavingConds()
                 func_parsed = func_splited[0] + "(" + func_splited[1] + ")";
             }
             tmp_vec[i] = func_parsed;
-            std::cout << func_parsed << std::endl;
         }
         if (i != tmp_vec.size() - 1)
             tmp_vec[i] += ' ';
