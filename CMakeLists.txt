@@ -14,6 +14,6 @@ include_directories("${INCLUDE_DIR}")
 
 aux_source_directory(${SRC_DIR} DIR_SRCS)
 # add the executable
-add_executable(main ${DIR_SRCS})
+add_executable(main.out ${DIR_SRCS})
 
-install(TARGETS main DESTINATION ${BIN_DIR})
+install(TARGETS main.out DESTINATION ${BIN_DIR})

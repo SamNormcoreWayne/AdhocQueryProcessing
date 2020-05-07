@@ -17,6 +17,7 @@ protected:
     int generateMFStructPy(std::string) throw();
     int generatePostgresConPy(std::string) throw();
     int generateMainPy(std::string) throw();
+    int generateRequirements(std::string) throw();
 public:
     PyCode() = default;
     PyCode(const ParsedStruct& oldStruct)

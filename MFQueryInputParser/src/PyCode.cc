@@ -14,6 +14,7 @@ int PyCode::mainFunc(std::string cwd) noexcept
         this->generatePostgresConPy(cwd);
         std::cout << ">>Now generating Main.py" << std::endl;
         this->generateMainPy(cwd);
+        this->generateRequirements(cwd);
     }
     catch(ParserClassException::FileNotOpenException &e)
     {
@@ -467,4 +468,22 @@ int PyCode::generatePostgresConPy(std::string cwd) throw()
         ofs << "\t\tself.conn.close()\n";
     }
     return 0;
+}
+
+int PyCode::generateRequirements(std::string cwd) throw()
+{
+    std::ofstream ofs;
+    std::string path = cwd + "/requirements.txt";
+    ofs.open(path, std::ios::out);
+    if (!ofs.is_open())
+    {
+        ofs.clear();
+        ofs.close();
+        throw ParserClassException::FileNotOpenException();
+    }
+    else
+    {
+        ofs << "prettytable==0.7.2\n";
+        ofs << "psycopg2==2.8.5\n";
+    }
 }
