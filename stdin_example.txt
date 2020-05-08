@@ -1,13 +1,13 @@
 SELECT ATTRIBUTE:
-cust, 1_sum_quant, 2_sum_quant, 3_sum_quant
+cust, prod, month, 1_sum_quant, 2_sum_quant, 3_sum_quant
 NUMBER OF GROUPING VARIABLES:
 3
 GROUPING ATTRIBUTES:
-cust
+cust, prod, month
 F-VECT:
 1_sum_quant, 1_avg_quant, 2_sum_quant, 3_sum_quant, 3_avg_quant
 SELECT CONDITION-VECT:
-1.state = NY
+1.state = NY and 1.quant < sum(quant)
 2.state = NJ
 3.state = CT
 HAVING_CONDITION:

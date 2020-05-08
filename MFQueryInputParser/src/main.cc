@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         }
         else if (MethodStr == "FILE")
         {
-            ParserDB.readInput();
+            ParserDB.readFromFile();
             ParserDB.parseSelectAttr();
             ParserDB.parseHavingConds();
             ParserDB.parseMFStruct();

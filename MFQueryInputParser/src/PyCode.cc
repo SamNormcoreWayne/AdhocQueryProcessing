@@ -191,7 +191,7 @@ int PyCode::generatePostgresConPy(std::string cwd) throw()
         ofs << "\t\tif self.cur is None:\n";
         ofs << "\t\t\tself.cur = self.conn.cursor(cursor_factory=pstgre.extras.DictCursor)\n";
         ofs << "\t\tselect_attr = self.operate_obj.group_attr\n";
-		ofs << "\t\tselect_attr_lst = select_attr.split(\",\")\n";
+		ofs << "\t\tselect_attr_lst = select_attr.split(\", \")\n";
 		ofs << "\t\tself.cur.execute(\"SELECT {} FROM sales GROUP BY {} ORDER BY {};\".format(select_attr, select_attr, select_attr_lst[0]))\n";
         ofs << "\t\twhile(True):\n";
         ofs << "\t\t\ttry:\n";

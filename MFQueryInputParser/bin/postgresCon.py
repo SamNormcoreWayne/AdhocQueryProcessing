@@ -34,7 +34,7 @@ class postgresCon():
 		if self.cur is None:
 			self.cur = self.conn.cursor(cursor_factory=pstgre.extras.DictCursor)
 		select_attr = self.operate_obj.group_attr
-		select_attr_lst = select_attr.split(",")
+		select_attr_lst = select_attr.split(", ")
 		self.cur.execute("SELECT {} FROM sales GROUP BY {} ORDER BY {};".format(select_attr, select_attr, select_attr_lst[0]))
 		while(True):
 			try:
@@ -183,6 +183,7 @@ class postgresCon():
 		'''
 			Parse X.var in reverse_polish_list
 		'''
+		print(reverse_polish_select_conds)
 		for item in reverse_polish_select_conds:
 			if item in postgresCon.operators:
 				'''
