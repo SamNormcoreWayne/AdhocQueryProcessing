@@ -214,7 +214,7 @@ class postgresCon():
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)
-				if item == "<":
+				elif item == "<":
 					if postgresCon.unpack_agg_func(last_ele[1]):
 						if line_data[last_ele[0]] >= self.mf_table[line_in_table].agg_func[last_ele[1]]:
 							bool_ele.append(False)
@@ -225,7 +225,7 @@ class postgresCon():
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)
-				if item == ">":
+				elif item == ">":
 					if postgresCon.unpack_agg_func(last_ele[1]):
 						if line_data[last_ele[0]] <= self.mf_table[line_in_table].agg_func[last_ele[1]]:
 							bool_ele.append(False)
@@ -236,7 +236,7 @@ class postgresCon():
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)
-				if item == "<=":
+				elif item == "<=":
 					if postgresCon.unpack_agg_func(last_ele[1]):
 						if line_data[last_ele[0]] > self.mf_table[line_in_table].agg_func[last_ele[1]]:
 							bool_ele.append(False)
@@ -247,7 +247,7 @@ class postgresCon():
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)
-				if item == ">=":
+				elif item == ">=":
 					if postgresCon.unpack_agg_func(last_ele[1]):
 						if line_data[last_ele[0]] < self.mf_table[line_in_table].agg_func[last_ele[1]]:
 							bool_ele.append(False)
@@ -258,7 +258,7 @@ class postgresCon():
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)
-				if item == "<>":
+				elif item == "<>":
 					if postgresCon.unpack_agg_func(last_ele[1]):
 						if line_data[last_ele[0]] == self.mf_table[line_in_table].agg_func[last_ele[1]]:
 							bool_ele.append(False)
