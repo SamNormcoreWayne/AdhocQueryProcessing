@@ -7,7 +7,7 @@ def main():
 	havingCond = "1.sum(quant) > 2 * 2.sum(quant) or 1.avg(quant) > 3.avg(quant)"
 	group_attr = ",".join(["cust, prod, month"])
 	agg_func = dict([[1,"1_sum_quant, 1_avg_quant"],[2,"2_sum_quant"],[3,"3_sum_quant, 3_avg_quant"]])
-	select_cond = dict([[1,"1.state = NY and 1.quant < sum(quant)"],[2,"2.state = NJ"],[3,"3.state = CT"]])
+	select_cond = dict([[1,"1.state = NY"],[2,"2.state = NJ"],[3,"3.state = CT"]])
 	for key in agg_func:
 		agg_func[key] = agg_func[key].split(", ")
 	size = 3

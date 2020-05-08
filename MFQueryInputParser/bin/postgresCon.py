@@ -183,7 +183,6 @@ class postgresCon():
 		'''
 			Parse X.var in reverse_polish_list
 		'''
-		print(reverse_polish_select_conds)
 		for item in reverse_polish_select_conds:
 			if item in postgresCon.operators:
 				'''
@@ -212,6 +211,61 @@ class postgresCon():
 							bool_ele.append(True)
 					else:
 						if line_data[last_ele[0]] != last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				if item == "<":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] >= self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] >= last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				if item == ">":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] <= self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] <= last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				if item == "<=":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] > self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] > last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				if item == ">=":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] < self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] < last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				if item == "<>":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] == self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] == last_ele[1]:
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)
