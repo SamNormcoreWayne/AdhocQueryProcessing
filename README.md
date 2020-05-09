@@ -1,13 +1,32 @@
 # Ad-hoc OLAP Query Processing
 
+## 0. How to run
+
+1. Input parser
+
+    ``` bash
+    cmake
+    cd build
+    make install
+    cd ../MFQueryInputParser
+    ./bin/main.out
+    ```
+
+2. Generated Code
+
+    ``` bash
+    pip3 install -r ./bin/requirements.txt
+    python3 ./bin/main.py
+    ```
+
 ## 1. BackGround
 
 1. MF Query: Damianos Chatziantoniou and Kenneth A. Ross. 1996. [**Querying Multiple Features of Groups in Relational Databases.**](https://dl.acm.org/doi/abs/10.5555/645922.673628) In Proceedings of the 22th International Conference on Very Large Data Bases (VLDB ’96). Morgan Kaufmann Publishers Inc., San Francisco, CA, USA, 295–306.
 2. Ad-Hoc OLAP Query: D. Chatziantoniou, [**"Evaluation of ad hoc OLAP: in-place computation"**](https://ieeexplore.ieee.org/document/787619) ,Proceedings. Eleventh International Conference on Scientific and Statistical Database Management, Cleveland, OH, USA, 1999, pp. 34-43, doi: 10.1109/SSDM.1999.787619.
 
-## 2. Simplify:
+## 2. Simplify
 
-- Example EMF Query:
+- Example MF Query:
 
     ```SQL
     select cust, sum(x.quant), sum(y.quant), sum(z.quant)

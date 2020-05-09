@@ -34,7 +34,7 @@ class postgresCon():
 		if self.cur is None:
 			self.cur = self.conn.cursor(cursor_factory=pstgre.extras.DictCursor)
 		select_attr = self.operate_obj.group_attr
-		select_attr_lst = select_attr.split(",")
+		select_attr_lst = select_attr.split(", ")
 		self.cur.execute("SELECT {} FROM sales GROUP BY {} ORDER BY {};".format(select_attr, select_attr, select_attr_lst[0]))
 		while(True):
 			try:
@@ -74,7 +74,7 @@ class postgresCon():
 					'''
 				if pivot is True:
 					for i in self.operate_obj.agg_func_parsed.keys():
-						if(self.check_select_cond(i, j, output)):
+						if i == 0 or self.check_select_cond(i, j, output):
 							self.update_agg_func_values(i, j, output)
 
 	def project_data(self):
@@ -172,7 +172,13 @@ class postgresCon():
 				if item in agg_func_line.keys():
 					last_ele.append(agg_func_line[item])
 				else:
-					last_ele.append(int(item))
+					try:
+						item = int(item)
+					except ValueError:
+						item = item
+						last_ele.append(agg_func_line[item])
+					else:
+						last_ele.append(item)
 		return bool_ele.pop()
 
 	def check_select_cond(self, var : int, line_in_table : int, line_data):
@@ -211,6 +217,61 @@ class postgresCon():
 							bool_ele.append(True)
 					else:
 						if line_data[last_ele[0]] != last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				elif item == "<":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] >= self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] >= last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				elif item == ">":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] <= self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] <= last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				elif item == "<=":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] > self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] > last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				elif item == ">=":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] < self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] < last_ele[1]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+				elif item == "<>":
+					if postgresCon.unpack_agg_func(last_ele[1]):
+						if line_data[last_ele[0]] == self.mf_table[line_in_table].agg_func[last_ele[1]]:
+							bool_ele.append(False)
+						else:
+							bool_ele.append(True)
+					else:
+						if line_data[last_ele[0]] == last_ele[1]:
 							bool_ele.append(False)
 						else:
 							bool_ele.append(True)

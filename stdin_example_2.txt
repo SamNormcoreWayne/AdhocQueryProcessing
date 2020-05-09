@@ -1,0 +1,13 @@
+SELECT ATTRIBUTE:
+cust, 1_sum_quant, 1_count_quant, 1_avg_quant, 2_sum_quant
+NUMBER OF GROUPING VARIABLES:
+2
+GROUPING ATTRIBUTES:
+cust
+F-VECT:
+1_sum_quant, 1_count_quant, 1_avg_quant, 2_sum_quant
+SELECT CONDITION-VECT:
+1.state = NY
+2.state = NJ
+HAVING_CONDITION:
+1 = 1;

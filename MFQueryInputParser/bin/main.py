@@ -3,11 +3,11 @@ from MFStruct import operateClass
 from postgresCon import postgresCon
 
 def main():
-	selectAttr = "cust, 1_sum_quant, 2_sum_quant, 3_sum_quant"
+	selectAttr = "cust, prod, month, 1_sum_quant, 2_sum_quant, 3_sum_quant"
 	havingCond = "1.sum(quant) > 2 * 2.sum(quant) or 1.avg(quant) > 3.avg(quant)"
-	group_attr = ",".join(["cust"])
-	agg_func = dict([[1,"1_sum_quant, 1_avg_quant"],[2,"2_sum_quant"],[3,"3_sum_quant, 3_avg_quant"]])
-	select_cond = dict([[1,"1.state = NY"],[2,"2.state = NJ"],[3,"3.state = CT"]])
+	group_attr = ",".join(["cust, prod, month"])
+	agg_func = dict([[0,"sum_quant"],[1,"1_sum_quant, 1_avg_quant"],[2,"2_sum_quant"],[3,"3_sum_quant, 3_avg_quant"]])
+	select_cond = dict([[1,"1.state = NY and 1.state = sum(quant)"],[2,"2.state = NJ"],[3,"3.state = CT"],[67,"sum_quant, 1_sum_quant, 1_avg_quant, 2_sum_quant, 3_sum_quant, 3_avg_quant"]])
 	for key in agg_func:
 		agg_func[key] = agg_func[key].split(", ")
 	size = 3

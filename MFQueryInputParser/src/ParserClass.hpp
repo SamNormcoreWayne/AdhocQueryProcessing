@@ -23,7 +23,6 @@ class ParserClass
 private:
     InputStruct inputs;
     ParsedStruct parsedInputs;
-    std::vector<std::string> query;
 protected:
     enum aggFuncType {SUM, AVG, MAX, MIN, COUNT};
     static const char* SELECT_VAR;
@@ -41,6 +40,7 @@ public:
     ParserClass(const ParserClass &) = delete;
     ParserClass& operator= (const ParserClass &) = delete;
     void readInput();
+    void readFromFile();
 
     // class methods for attributes operators;
     void setSelectVar(std::string line);

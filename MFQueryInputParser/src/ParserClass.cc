@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 #include "ParserClass.hpp"
 #include "parsedStruct.hpp"
 
@@ -10,6 +11,71 @@ const char* ParserClass::GROUPING_ATTRIBUTE = "GROUPING ATTRIBUTES:";
 const char* ParserClass::AGG_FUNCS = "F-VECT:";
 const char* ParserClass::SELECT_CONDS = "SELECT CONDITION-VECT:";
 const char* ParserClass::HAVING_CONDS = "HAVING_CONDITION:";
+
+void ParserClass::readFromFile()
+{
+    std::string line;
+    std::string nextLine;
+    std::string filename = "";
+    std::cout << "Input file absolute path: " << std::endl;
+    std::cin >> filename;
+    std::cin.clear();
+    std::ifstream ifs(filename, std::ios::in);
+    bool flag = false;
+    while(true)
+    {
+        if (flag)
+            break;
+        getline(ifs, line);
+        if (line == ParserClass::SELECT_VAR)
+        {
+            getline(ifs, nextLine);
+            this->setSelectVar(nextLine);
+        }
+        else if (line == ParserClass::NUM_OF_GROUPING)
+        {
+            int theNum;
+            ifs >> theNum;
+            this->inputs.num = theNum;
+            getline(ifs, line);
+        }
+        else if (line == ParserClass::GROUPING_ATTRIBUTE)
+        {
+            getline(ifs, nextLine);
+            this->inputs.group_var = nextLine;
+        }
+        else if (line == ParserClass::AGG_FUNCS)
+        {
+            getline(ifs, nextLine);
+            this->setAggFunc(nextLine);
+        }
+        else if (line == ParserClass::SELECT_CONDS)
+        {
+            /*
+             * The number of lines in SELECT CONDITION-VECT([σ]) is unknown.
+             * So we parse SELECT COND and HAVING COND together. 
+             */
+            do
+            {
+                if (nextLine != ParserClass::HAVING_CONDS)
+                    this->setSelectCond(nextLine);
+                else
+                {
+                    getline(ifs, nextLine);
+                    if (nextLine.back() == ';')
+                    {
+                        nextLine.pop_back();
+                        flag = true;
+                    }
+                    this->setHavingCond(nextLine);
+                    if (flag)
+                        break;
+                }
+                getline(ifs, nextLine);
+            } while (true);
+        }
+    }
+}
 
 void ParserClass::readInput()
 {
