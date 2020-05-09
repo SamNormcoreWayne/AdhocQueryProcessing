@@ -53,29 +53,30 @@ class postgresCon():
 		select_attr = self.operate_obj.group_attr.split(", ")
 		if self.cur is None:
 			self.cur = self.conn.cursor()
-		self.cur.execute("SELECT * FROM sales;")
-		while(True):
-			output = self.cur.fetchone()
-			if output is None:
-				break
-			for j in range(len(self.mf_table)):
-				pivot = True
-				for item in select_attr:
-					if output[item] != self.mf_table[j].group_attr[item]:
+		for i in self.operate_obj.agg_func_parsed.keys():
+			self.cur.execute("SELECT * FROM sales ORDER BY cust, month, prod;")
+			while(True):
+				output = self.cur.fetchone()
+				if output is None:
+					break
+				for j in range(0, len(self.mf_table)):
+					pivot = True
+					for item in select_attr:
+						if output[item] != self.mf_table[j].group_attr[item]:
+							'''
+								Check x.gourp_attr == group_attr?
+								if !=
+							'''
+							pivot = False
+							break
 						'''
-							Check x.gourp_attr == group_attr?
-							if !=
+							if all x.group_attr == group_attr
+							start to check those select with aggFuncs.
 						'''
-						pivot = False
-						break
-					'''
-						if all x.group_attr == group_attr
-						start to check those select with aggFuncs.
-					'''
-				if pivot is True:
-					for i in self.operate_obj.agg_func_parsed.keys():
+					if pivot is True:
 						if(self.check_select_cond(i, j, output)):
 							self.update_agg_func_values(i, j, output)
+							break
 
 	def project_data(self):
 		pt = PrettyTable(self.operate_obj.select_attr_agg_func)
@@ -172,7 +173,13 @@ class postgresCon():
 				if item in agg_func_line.keys():
 					last_ele.append(agg_func_line[item])
 				else:
-					last_ele.append(int(item))
+					try:
+						item = int(item)
+					except ValueError:
+						item = item
+						last_ele.append(agg_func_line[item])
+					else:
+						last_ele.append(item)
 		return bool_ele.pop()
 
 	def check_select_cond(self, var : int, line_in_table : int, line_data):
